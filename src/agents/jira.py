@@ -38,25 +38,29 @@ def get_client():
 # --- HERRAMIENTAS DE JIRA ---
 
 @mcp.tool()
-def list_my_tasks(board_id: int = 67, limit: int = 10) -> str:
-    """📋 My Tasks - Show all pending tasks assigned to you on the current board"""
+def list_my_tasks(limit: int = 10) -> str:
+    """📋 My Tasks - Show all pending tasks assigned to you (Global Search)"""
     try:
-        board_id = validate_board_id(board_id)
         limit = validate_limit(limit, max_limit=100)
         
         client = get_client()
-        jql = "assignee = currentUser() AND statusCategory != Done"
-        issues = client.get_board_issues(board_id=board_id, jql=jql)
+        # Usamos búsqueda global para evitar problemas con filtros de tableros específicos
+        jql = "assignee = currentUser() AND statusCategory != Done ORDER BY updated DESC"
+        
+        # Usamos get_issues que ahora usa el endpoint robusto search/jql
+        issues = client.get_issues(jql=jql, max_results=limit)
         
         if not issues:
-            return "No pending tasks found."
+            return "No pending tasks found assigned to you."
             
-        result = [f"📋 PENDING TASKS (Board {board_id}):"]
-        for issue in issues[:limit]:
+        result = [f"📋 PENDING TASKS (Global):"]
+        for issue in issues:
             key = issue.get("key")
-            summary = issue.get("fields", {}).get("summary")
-            status = issue.get("fields", {}).get("status", {}).get("name")
-            result.append(f"- [{key}] {summary} ({status})")
+            fields = issue.get("fields", {})
+            summary = fields.get("summary", "No summary")
+            status = fields.get("status", {}).get("name", "Unknown")
+            priority = fields.get("priority", {}).get("name", "None")
+            result.append(f"- [{key}] {summary} ({status}) [{priority}]")
             
         return "\n".join(result)
     except ValidationError as e:

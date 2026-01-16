@@ -192,12 +192,15 @@ class JiraClient:
         if not jql:
             jql = f"project = {key} ORDER BY created DESC"
         
-        params = {
+        # Update for new Jira API constraints: Use POST to search/jql
+        payload = {
             "jql": jql,
             "maxResults": max_results,
-            "fields": "summary,status,assignee,priority,created,updated,description,issuetype,comment"
+            "fields": ["summary", "status", "assignee", "priority", "created", "updated", "description", "issuetype", "comment"]
         }
-        result = self._make_request("GET", "search", params=params)
+        
+        # Ensure we use search/jql endpoint which is replacing standard search in some tenants
+        result = self._make_request("POST", "search/jql", data=payload)
         return result.get("issues", [])
     
     def get_issue(self, issue_key: str) -> Dict:
