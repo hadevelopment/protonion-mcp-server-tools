@@ -100,5 +100,5 @@ def get_singleton_client():
     Get singleton Jira client instance.
     Uses LRU cache with maxsize=1 to create only one instance.
     """
-    from .client import JiraClient
+    from src.services.jira_service import JiraClient
     return JiraClient()

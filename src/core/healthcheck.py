@@ -38,8 +38,8 @@ def perform_health_check() -> HealthStatus:
     Returns:
         HealthStatus object with results
     """
-    from .config import JiraConfig
-    from .client import JiraClient
+    from src.core.config import JiraConfig
+    from src.services.jira_service import JiraClient
     
     status = HealthStatus()
     

@@ -2,8 +2,8 @@
 from mcp.server.fastmcp import FastMCP
 import os
 from dotenv import load_dotenv
-from src.jira_tools.healthcheck import perform_health_check, format_health_report
-from src.jira_tools.config import JiraConfig
+from src.core.healthcheck import perform_health_check, format_health_report
+from src.core.config import JiraConfig
 
 load_dotenv()
 
