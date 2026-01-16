@@ -4,7 +4,8 @@ Protonion MCP Jira Agent - Standalone Version
 Simple, robust, and portable
 """
 import os
-from dotenv import load_dotenv
+from pathlib import Path
+from dotenv import load_dotenv, set_key
 from mcp.server.fastmcp import FastMCP
 import requests
 from typing import Dict, List
@@ -19,7 +20,41 @@ JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN", "")
 JIRA_PROJECT_KEY = os.getenv("JIRA_PROJECT_KEY", "CRM")
 
 # Initialize FastMCP
-mcp = FastMCP("Protonion MCP Jira")
+mcp = FastMCP(
+    "protonion",
+    instructions="""
+# 🚀 Protonion Jira Agent
+**Professional Jira Integration for Antigravity**
+
+This agent provides a complete suite of tools to manage your Jira workflow without leaving your editor.
+
+### 🌟 Key Capabilities
+*   **Task Management**: Create, list, search, and inspect issues.
+*   **Workflow Automation**: Transitions tasks safely with validation.
+*   **Team Collaboration**: Find teammates and assign tasks.
+*   **Configuration**: Zero-config setup with UI-based credential management.
+
+### 🛠️ Setup
+Use the `update_config` tool to set your Jira URL, Email, and API Token.
+    """
+)
+
+@mcp.resource("protonion://readme")
+def get_readme() -> str:
+    """📄 About Protonion Jira"""
+    return """
+# 🚀 Protonion Jira Agent
+
+Professional Jira integration for high-performance teams.
+
+### Features
+- 📋 **Task Management**: List, create, and inspect tasks
+- 🔄 **Workflow**: Move tasks securely between statuses
+- 👥 **Team**: Find colleagues instantly
+- ⚙️ **Configurable**: Manage credentials directly from the UI
+
+*Powered by Antigravity & Protonion Framework*
+"""
 
 
 class JiraClient:
@@ -248,5 +283,64 @@ def search_colleague(name: str) -> str:
         return f"Error: {str(e)}"
 
 
+@mcp.tool()
+def show_config() -> str:
+    """⚙️ Show Configuration - Display current Jira settings (tokens masked)"""
+    def mask_token(value: str) -> str:
+        if not value or len(value) < 8:
+            return "***"
+        return f"{value[:4]}...{value[-4:]}"
+    
+    return (
+        f"🔧 **Jira Configuration:**\n"
+        f"- JIRA_URL: {JIRA_URL}\n"
+        f"- JIRA_USER: {JIRA_USER or '(not set)'}\n"
+        f"- JIRA_API_TOKEN: {mask_token(JIRA_API_TOKEN) if JIRA_API_TOKEN else '(not set)'}\n"
+        f"- JIRA_PROJECT_KEY: {JIRA_PROJECT_KEY}\n\n"
+        f"💡 Use `update_config` to change these values"
+    )
+
+
+@mcp.tool()
+def update_config(jira_url: str = None, jira_user: str = None, jira_api_token: str = None, jira_project_key: str = None) -> str:
+    """🔐 Update Configuration - Set Jira credentials and settings"""
+    try:
+        # Find .env file
+        env_path = Path(__file__).parent / ".env"
+        
+        # Create .env if it doesn't exist
+        if not env_path.exists():
+            env_path.write_text("# Jira Configuration\n")
+        
+        updated = []
+        
+        if jira_url:
+            set_key(env_path, "JIRA_URL", jira_url)
+            updated.append("JIRA_URL")
+        
+        if jira_user:
+            set_key(env_path, "JIRA_USER", jira_user)
+            updated.append("JIRA_USER")
+        
+        if jira_api_token:
+            set_key(env_path, "JIRA_API_TOKEN", jira_api_token)
+            updated.append("JIRA_API_TOKEN")
+        
+        if jira_project_key:
+            set_key(env_path, "JIRA_PROJECT_KEY", jira_project_key)
+            updated.append("JIRA_PROJECT_KEY")
+        
+        if not updated:
+            return "⚠️ No values provided to update. Specify at least one parameter."
+        
+        return (
+            f"✅ Configuration updated: {', '.join(updated)}\n\n"
+            f"⚠️ **Important:** You must restart Antigravity for changes to take effect."
+        )
+    except Exception as e:
+        return f"Error updating config: {str(e)}"
+
+
 if __name__ == "__main__":
     mcp.run()
+

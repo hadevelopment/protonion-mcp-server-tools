@@ -1,62 +1,48 @@
 # 🤖 Protonion MCP Server Tools
 
-A professional, modular, and enterprise-grade framework for building and managing portable MCP agents.
+A robust, enterprise-grade framework for portable MCP agents. Currently featuring the **Protonion Jira Agent**.
 
 ## 🚀 Features
-- **Modular Architecture**: Separate agents (Jira, Admin, etc.) sharing a common core library.
-- **Portable**: Designed to work across different machines with zero hardcoding.
-- **Enterprise-ready**: Includes input validation, TTL caching, health checks, and a comprehensive test suite.
-- **Unified Management**: Managed centrally via the Protonion MCP Manager.
+- **Standalone Architecture**: The entire Jira agent lives in a single, portable `jira.py` file with zero complex dependencies.
+- **Auto-Configurable**: Includes built-in tools (`update_config`) to set credentials directly from the AI Interface (Antigravity).
+- **Protonion Framework**: Integrated with the MCP Manager for one-click installation and updates.
+- **Enterprise-ready**: Includes input validation, workflow enforcement, and team collaboration tools.
 
 ---
 
 ## 📦 Quick Installation
 
-### 1. Register the Server
-Add this to your `mcp-registry.json` (managed by Protonion MCP Manager):
-```json
-"protonion-mcp-jira": {
-    "description": "Jira Agent - Task Management",
-    "directory": "protonion-mcp-server-tools",
-    "repository": "https://github.com/hadevelopment/protonion-mcp-server-tools.git",
-    "env_template": ".env.example",
-    "env_required": ["JIRA_URL", "JIRA_USER", "JIRA_API_TOKEN"],
-    "command": "uv",
-    "args": ["src/agents/jira.py"],
-    "enabled": true
-}
+### 1. Using Protonion MCP Manager (Recommended)
+This repository includes the `mcp-manager.py` utility which automates the setup.
+
+```bash
+# 1. Install/Update the agent
+python mcp-manager.py install-all
+
+# 2. Restart your AI Editor (Antigravity/Cursor)
 ```
 
-### 2. Install Dependencies
-```bash
-# Using Protonion MCP Manager
-python mcp-manager.py install protonion-mcp-jira
-```
+### 2. Manual Setup
+If you prefer manual configuration, simply run the agent using `uv`:
 
-### 3. Configure Credentials
 ```bash
-# Using the interactive wizard
-python mcp-manager.py configure protonion-mcp-jira
+uv run jira.py
 ```
 
 ---
 
-## 🛠️ Unified Agents
+## 🛠️ Included Agents
 
-This project exposes multiple independent MCP agents from a single codebase:
+### 🤖 Protonion Jira (`jira.py`)
+A comprehensive Jira integration that creates a professional "App-like" experience within your AI editor.
 
-### 1. 🤖 Protonion MCP Jira
-Focused on business logic and task management.
-- `list_my_tasks`: 📋 View your pending tasks.
-- `inspect_task`: 🔍 View task details and comments.
-- `safe_move_task`: 🔄 Transition tasks with workflow validation.
-- `create_task`: ✨ Create new tasks.
-- `search_colleague`: 👥 Find team members by name.
-
-### 2. 🛡️ Protonion MCP Admin
-Focused on system health and configuration management.
-- `health_check`: 🩺 Complete diagnostic of all system components.
-- `show_environment`: ⚙️ View configuration status (masked security).
+**Tools:**
+- `list_my_tasks`: 📋 View your pending tasks instantly.
+- `inspect_task`: 🔍 View rich details, description, and comments of any task.
+- `safe_move_task`: 🔄 Transition tasks (e.g., To Do -> Done) with workflow validation.
+- `create_task`: ✨ Create new tasks from natural language.
+- `search_colleague`: 👥 Find team members by name to assign tasks.
+- `show_config` / `update_config`: ⚙️ View and update credentials directly from the UI.
 
 ---
 
@@ -64,18 +50,10 @@ Focused on system health and configuration management.
 
 ```
 protonion-mcp-server-tools/
-├── src/
-│   ├── core/           # Shared Core (DNA) 🧬
-│   │   ├── cache.py    # TTL Caching system
-│   │   ├── config.py   # Global configuration loader
-│   │   ├── validators.py # Generic input validation
-│   │   └── healthcheck.py # Health check engine
-│   ├── services/       # API Integration Layer 🧠
-│   │   └── jira_service.py # Jira API client logic
-│   └── agents/         # MCP Entry Points (Agents) 🤖
-│       ├── jira.py     # Jira Business Agent
-│       └── admin.py    # System Admin Agent
-├── tests/              # Automated Test Suite 🧪
+├── jira.py             # 🌟 MAIN AGENT: Standalone Jira MCP Server
+├── mcp-manager.py      # 🛠️ UTILITY: Manager for installation/updates
+├── src/                # (Legacy/Dev) Modular source code (optional)
+├── tests/              # Automated Test Suite
 ├── README.md           # Documentation
 ├── pyproject.toml      # Dependency management (uv)
 └── .env.example        # Configuration template
@@ -83,20 +61,11 @@ protonion-mcp-server-tools/
 
 ---
 
-## 🧪 Testing
+## 🔒 Security & Configuration
 
-```bash
-# Run all tests
-uv run pytest tests/ -v
-```
-
----
-
-## 🔒 Security
-
-- ✅ `.env` is ignored by git (never commit secrets).
-- ✅ Masked sensitive data in logs and admin tools.
-- ✅ Robust input sanitization in all MCP tools.
+1.  **Credentials**: Never committed to Git. Stored locally in a `.env` file next to the agent.
+2.  **Management**: You can update your API Token or URL using the `update_config` tool inside the agent.
+3.  **Masking**: Sensitive data is masked in logs and configuration views.
 
 ---
 
