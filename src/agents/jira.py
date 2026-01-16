@@ -3,10 +3,14 @@ import sys
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
+from dotenv import load_dotenv
+
 # Añadir la raíz del proyecto al sys.path para portabilidad extrema
 ROOT_DIR = Path(__file__).parents[2]
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
+
+load_dotenv()
 
 from src.services.jira_service import JiraClient
 from src.core.config import JiraConfig
@@ -81,7 +85,7 @@ def inspect_task(issue_key: str) -> str:
         return f"System Error: {str(e)}"
 
 @mcp.tool()
-def safe_move_task(issue_key: str, target_status: str, comment: Optional[str] = None) -> str:
+def safe_move_task(issue_key: str, target_status: str, comment: str = None) -> str:
     """🔄 Move Task - Transition a task with workflow validation and optional comment"""
     try:
         issue_key = validate_issue_key(issue_key)

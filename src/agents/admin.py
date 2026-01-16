@@ -3,10 +3,14 @@ import sys
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
+from dotenv import load_dotenv
+
 # Añadir la raíz del proyecto al sys.path
 ROOT_DIR = Path(__file__).parents[2]
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
+
+load_dotenv()
 
 from src.core.healthcheck import perform_health_check, format_health_report
 from src.core.config import JiraConfig
