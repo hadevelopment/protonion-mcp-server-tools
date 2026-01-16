@@ -1,99 +1,84 @@
-# 🚀 Protonion Jira Agent
+# 🤖 Protonion MCP Server Tools
 
-MCP (Model Context Protocol) server para integración de Jira con Antigravity AI.
+A professional, modular, and enterprise-grade framework for building and managing portable MCP agents.
 
-## 📦 Instalación Rápida
-
-### Clonar el Repositorio
-```bash
-git clone https://github.com/YOUR_USERNAME/jira-agent.git
-cd jira-agent
-```
-
-### Instalar Dependencias
-```bash
-# Instalar uv (si no lo tienes)
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# Instalar dependencias del proyecto
-uv sync
-```
-
-### Configurar Credenciales
-```bash
-# Crear archivo .env desde template
-copy .env.example .env
-
-# Editar con tus credenciales
-notepad .env
-```
-
-Necesitas:
-- `JIRA_URL`: Tu dominio de Jira (ej: `https://tuempresa.atlassian.net`)
-- `JIRA_USER`: Tu email de Jira
-- `JIRA_API_TOKEN`: Token de API ([Obtener aquí](https://id.atlassian.com/manage-profile/security/api-tokens))
-
-### Configurar Antigravity
-
-Edita: `C:\Users\<TU_USER>\.gemini\antigravity\mcp_config.json`
-
-```json
-{
-  "mcpServers": {
-    "jira-protonion": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--directory",
-        "C:\\ruta\\completa\\al\\jira-agent",
-        "server.py"
-      ],
-      "env": {
-        "PYTHONIOENCODING": "utf-8"
-      }
-    }
-  }
-}
-```
-
-**⚠️ Cambia la ruta a donde clonaste el proyecto**
-
-### Verificar
-
-```bash
-# Probar el servidor
-uv run server.py list
-
-# Ejecutar tests
-uv run pytest tests/ -v
-```
-
-### Reiniciar Antigravity
-
-Cierra y abre Antigravity para cargar el servidor MCP.
+## 🚀 Features
+- **Modular Architecture**: Separate agents (Jira, Admin, etc.) sharing a common core library.
+- **Portable**: Designed to work across different machines with zero hardcoding.
+- **Enterprise-ready**: Includes input validation, TTL caching, health checks, and a comprehensive test suite.
+- **Unified Management**: Managed centrally via the Protonion MCP Manager.
 
 ---
 
-## 🛠️ Uso
+## 📦 Quick Installation
 
-### Herramientas Disponibles
+### 1. Register the Server
+Add this to your `mcp-registry.json` (managed by Protonion MCP Manager):
+```json
+"protonion-mcp-jira": {
+    "description": "Jira Agent - Task Management",
+    "directory": "protonion-mcp-server-tools",
+    "repository": "https://github.com/hadevelopment/protonion-mcp-server-tools.git",
+    "env_template": ".env.example",
+    "env_required": ["JIRA_URL", "JIRA_USER", "JIRA_API_TOKEN"],
+    "command": "uv",
+    "args": ["src/agents/jira.py"],
+    "enabled": true
+}
+```
 
-| Herramienta | Descripción |
-|-------------|-------------|
-| `ping` | 🩺 Health check completo |
-| `list_my_tasks` | 📋 Ver tus tareas pendientes |
-| `inspect_task` | 🔍 Ver detalles de una tarea |
-| `safe_move_task` | 🔄 Mover tarea a nuevo estado |
-| `create_task` | ✨ Crear nueva tarea |
-| `search_colleague` | 👥 Buscar usuario por nombre |
+### 2. Install Dependencies
+```bash
+# Using Protonion MCP Manager
+python mcp-manager.py install protonion-mcp-jira
+```
 
-### Ejemplos desde Antigravity
+### 3. Configure Credentials
+```bash
+# Using the interactive wizard
+python mcp-manager.py configure protonion-mcp-jira
+```
+
+---
+
+## 🛠️ Unified Agents
+
+This project exposes multiple independent MCP agents from a single codebase:
+
+### 1. 🤖 Protonion MCP Jira
+Focused on business logic and task management.
+- `list_my_tasks`: 📋 View your pending tasks.
+- `inspect_task`: 🔍 View task details and comments.
+- `safe_move_task`: 🔄 Transition tasks with workflow validation.
+- `create_task`: ✨ Create new tasks.
+- `search_colleague`: 👥 Find team members by name.
+
+### 2. 🛡️ Protonion MCP Admin
+Focused on system health and configuration management.
+- `health_check`: 🩺 Complete diagnostic of all system components.
+- `show_environment`: ⚙️ View configuration status (masked security).
+
+---
+
+## 📁 Project Structure
 
 ```
-"Lista mis tareas de Jira"
-"Muestra los detalles de la tarea CRM-20"
-"Mueve CRM-24 a In Progress"
-"Crea una tarea: Implementar autenticación OAuth"
+protonion-mcp-server-tools/
+├── src/
+│   ├── core/           # Shared Core (DNA) 🧬
+│   │   ├── cache.py    # TTL Caching system
+│   │   ├── config.py   # Global configuration loader
+│   │   ├── validators.py # Generic input validation
+│   │   └── healthcheck.py # Health check engine
+│   ├── services/       # API Integration Layer 🧠
+│   │   └── jira_service.py # Jira API client logic
+│   └── agents/         # MCP Entry Points (Agents) 🤖
+│       ├── jira.py     # Jira Business Agent
+│       └── admin.py    # System Admin Agent
+├── tests/              # Automated Test Suite 🧪
+├── README.md           # Documentation
+├── pyproject.toml      # Dependency management (uv)
+└── .env.example        # Configuration template
 ```
 
 ---
@@ -101,75 +86,24 @@ Cierra y abre Antigravity para cargar el servidor MCP.
 ## 🧪 Testing
 
 ```bash
-# Ejecutar todos los tests
+# Run all tests
 uv run pytest tests/ -v
-
-# Tests específicos
-uv run pytest tests/test_server.py::TestValidators -v
 ```
 
 ---
 
-## 📁 Estructura del Proyecto
+## 🔒 Security
 
-```
-jira-agent/
-├── src/
-│   └── jira_tools/
-│       ├── client.py         # Cliente Jira
-│       ├── config.py         # Configuración
-│       ├── validators.py     # Validación de inputs
-│       ├── cache.py          # Sistema de caching
-│       └── healthcheck.py    # Health checks
-├── tests/
-│   └── test_server.py        # Tests unitarios
-├── server.py                 # Servidor MCP principal
-├── .env.example              # Template de configuración
-└── pyproject.toml            # Dependencias
-```
+- ✅ `.env` is ignored by git (never commit secrets).
+- ✅ Masked sensitive data in logs and admin tools.
+- ✅ Robust input sanitization in all MCP tools.
 
 ---
 
-## 🔒 Seguridad
+## 📄 License
 
-- ✅ `.env` está en `.gitignore` (nunca subas tus credenciales)
-- ✅ Usa `.env.example` como template
-- ⚠️ Rota tu API token periódicamente
+MIT License - Feel free to use and modify.
 
 ---
 
-## 📚 Documentación Adicional
-
-- [Guía de Buenas Prácticas](.agent/MCP_REFACTORING_BEST_PRACTICES.md)
-- [Model Context Protocol](https://modelcontextprotocol.io)
-- [Jira API Docs](https://developer.atlassian.com/cloud/jira/platform/rest/v3/)
-
----
-
-## ⚙️ Mejoras Implementadas
-
-- ✅ **Validación de inputs** - Previene ataques injection
-- ✅ **Caching TTL** - Reduce llamadas API ~50%
-- ✅ **Health checks** - Monitoreo completo
-- ✅ **Tests automatizados** - 13 tests passing
-- ✅ **Mensajes de error claros** - Debugging más fácil
-
----
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea tu feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
----
-
-## 📄 Licencia
-
-MIT License - Siéntete libre de usar y modificar.
-
----
-
-**Hecho con ❤️ usando FastMCP y uv**
+**Built with ❤️ by [hadevelopment](https://github.com/hadevelopment) using FastMCP and uv**
