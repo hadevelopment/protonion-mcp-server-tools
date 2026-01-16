@@ -1,13 +1,13 @@
-
-from mcp.server.fastmcp import FastMCP
-from typing import Optional
 import os
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
+from mcp.server.fastmcp import FastMCP
 
-# 1. Cargar entorno (buscando en raíz)
-load_dotenv()
+# Añadir la raíz del proyecto al sys.path para portabilidad extrema
+ROOT_DIR = Path(__file__).parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
 
-# 2. Importar Lógica Modular
 from src.services.jira_service import JiraClient
 from src.core.config import JiraConfig
 from src.core.jira_validators import (

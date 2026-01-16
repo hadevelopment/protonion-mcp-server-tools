@@ -1,8 +1,14 @@
-
+import os
+import sys
+from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 import platform
 import psutil
-import os
+
+# Añadir la raíz del proyecto al sys.path
+ROOT_DIR = Path(__file__).parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
 
 mcp = FastMCP("Protonion MCP System")
 
